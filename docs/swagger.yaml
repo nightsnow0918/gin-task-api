@@ -1,0 +1,98 @@
+info:
+  contact: {}
+paths:
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get all tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get all tasks
+      tags:
+      - Task
+    post:
+      consumes:
+      - application/json
+      description: Create a task with name and status
+      parameters:
+      - description: name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Create a task
+      tags:
+      - Task
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a task by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: Delete task
+      tags:
+      - Task
+    put:
+      consumes:
+      - application/json
+      description: Update a task by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: name
+        in: body
+        name: name
+        schema:
+          example: "Subject: Testmail\r\n\r\nBody Message\r\n"
+          type: string
+      - description: status
+        in: body
+        name: status
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update task
+      tags:
+      - Task
+swagger: "2.0"

@@ -1,0 +1,24 @@
+# Build artifacts
+*.a
+*.o
+*.so [1]
+
+# Dependency management
+/vendor/
+
+# IDE/editor specific files
+.idea/
+.vscode/
+_generated/  # Generated files by some tools
+
+# Test coverage reports
+coverage.out
+
+# Temporary test data
+tmp/
+
+# Executable file (you can change this if your binary has a different name)
+main
+
+# sqlite
+*.db
