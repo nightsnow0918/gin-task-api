@@ -105,8 +105,7 @@ const docTemplate = `{
                         "name": "name",
                         "in": "body",
                         "schema": {
-                            "type": "string",
-                            "example": "Subject: Testmail\r\n\r\nBody Message\r\n"
+                            "type": "string"
                         }
                     },
                     {

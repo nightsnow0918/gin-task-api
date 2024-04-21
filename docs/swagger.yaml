@@ -78,7 +78,6 @@ paths:
         in: body
         name: name
         schema:
-          example: "Subject: Testmail\r\n\r\nBody Message\r\n"
           type: string
       - description: status
         in: body

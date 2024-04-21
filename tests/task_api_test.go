@@ -36,19 +36,34 @@ func (s *TaskTestSuite) SetupTest() {
 
 func (s *TaskTestSuite) TearDownTest() {
 	// Clean-up table after each test
-	s.db.DB.Where("1 = 1").Delete(&models.Task{})
+	s.db.DB.Exec("DELETE FROM tasks")
 }
 
 func TestTaskAPISuite(t *testing.T) {
 	suite.Run(t, new(TaskTestSuite))
 }
 
+func (s *TaskTestSuite) CreateTask(
+	name string,
+	status models.TaskStatus,
+) models.Task {
+	newTask := models.Task{Name: name, Status: status}
+	s.db.DB.Create(&newTask)
+	return newTask
+}
+
 func (s *TaskTestSuite) TestGetAllTasks() {
 	var err error
+	newTasks := []models.Task{
+		{Name: "Task 1", Status: 0},
+		{Name: "Task 2", Status: 1},
+		{Name: "Task 3", Status: 1},
+	}
 
 	//Create a sample task
-	task1 := models.Task{Name: "Task 1", Status: 0}
-	s.db.DB.Create(&task1)
+	for i := 0; i < len(newTasks); i++ {
+		newTasks[i] = s.CreateTask(newTasks[i].Name, newTasks[i].Status)
+	}
 
 	// Test start
 	req, err := http.NewRequest(http.MethodGet, "/tasks", nil)
@@ -66,10 +81,13 @@ func (s *TaskTestSuite) TestGetAllTasks() {
 
 	// Assertions
 	s.Equal(http.StatusOK, w.Code)
-	s.Equal(1, len(tasks))
-	s.Equal(task1.Id, tasks[0].Id)
-	s.Equal(task1.Name, tasks[0].Name)
-	s.Equal(task1.Status, tasks[0].Status)
+	s.Equal(len(newTasks), len(tasks))
+
+	for i := 0; i < len(newTasks); i++ {
+		s.Equal(newTasks[i].Id, tasks[i].Id)
+		s.Equal(newTasks[i].Name, tasks[i].Name)
+		s.Equal(newTasks[i].Status, tasks[i].Status)
+	}
 }
 
 func (s *TaskTestSuite) TestCreateTasks() {
@@ -111,8 +129,7 @@ func (s *TaskTestSuite) TestUpdateTasks() {
 	var err error
 
 	// Create a sample task
-	createdTask := models.Task{Name: "Task 1", Status: 1}
-	s.db.DB.Create(&createdTask)
+	createdTask := s.CreateTask("Task 1", 1)
 
 	newTask := models.Task{
 		Name:   "Task 1",
@@ -150,8 +167,7 @@ func (s *TaskTestSuite) TestDeleteTasks() {
 	var err error
 
 	// Create a sample task
-	createdTask := models.Task{Name: "Task 1", Status: 1}
-	s.db.DB.Create(&createdTask)
+	createdTask := s.CreateTask("Task 1", 1)
 
 	url := fmt.Sprintf("/tasks/%v", createdTask.Id)
 	req, err := http.NewRequest(http.MethodDelete, url, nil)

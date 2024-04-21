@@ -2,9 +2,12 @@ package main
 
 import (
 	"gin-task-api/database"
+	"gin-task-api/docs"
 	"gin-task-api/handlers"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -15,11 +18,18 @@ func main() {
 	}
 
 	// Create a Gin router
-	server := gin.Default()
+	router := gin.Default()
 
 	// Register task router with dependencies
-	server = handlers.SetupRoutes(server, db)
+	router = handlers.SetupRoutes(router, db)
 
-	// Start the server on port 8080 (or any desired port)
-	server.Run(":8080")
+	// Document
+	if mode := gin.Mode(); mode == gin.DebugMode {
+		docs.SwaggerInfo.BasePath = "/"
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
+	// Start the router on port 8080 (or any desired port)
+	router.Run(":8080")
+
 }

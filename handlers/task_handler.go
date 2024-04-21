@@ -6,11 +6,7 @@ import (
 	"strconv"
 
 	"gin-task-api/database"
-	"gin-task-api/docs"
 	"gin-task-api/models"
-
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -27,10 +23,6 @@ func NewTaskHandler(db *database.Database) *TaskHandler {
 func SetupRoutes(r *gin.Engine, db *database.Database) *gin.Engine {
 	taskHandler := NewTaskHandler(db)
 
-	// Document
-	docs.SwaggerInfo.BasePath = "/"
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
 	// Define routes
 	r.GET("/tasks", taskHandler.GetAllTasks)
 	r.POST("/tasks", taskHandler.CreateTask)
@@ -39,16 +31,16 @@ func SetupRoutes(r *gin.Engine, db *database.Database) *gin.Engine {
 	return r
 }
 
-// @BasePath /
+//	@BasePath	/
 
-// @Summary Get all tasks
+// @Summary	Get all tasks
 // @Schemes
-// @Description Get all tasks
-// @Tags Task
-// @Accept json
-// @Produce json
-// @Success 200 {string} GetAllTasks
-// @Router /tasks [get]
+// @Description	Get all tasks
+// @Tags			Task
+// @Accept			json
+// @Produce		json
+// @Success		200	{string}	GetAllTasks
+// @Router			/tasks [get]
 func (th *TaskHandler) GetAllTasks(c *gin.Context) {
 	var tasks []models.Task
 	result := th.db.DB.Find(&tasks)
@@ -59,22 +51,27 @@ func (th *TaskHandler) GetAllTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, tasks)
 }
 
-// @BasePath /
+//	@BasePath	/
 
-// @Summary Create a task
+// @Summary	Create a task
 // @Schemes
-// @Description Create a task with name and status
-// @Tags Task
-// @Accept json
-// @Produce json
-// @param name body string true "name"
-// @param status body int true "status"
-// @Success 201 {string} CreateTask
-// @Router /tasks [post]
+// @Description	Create a task with name and status
+// @Tags			Task
+// @Accept			json
+// @Produce		json
+// @param			name	body		string	true	"name"
+// @param			status	body		int		true	"status"
+// @Success		201		{string}	CreateTask
+// @Router			/tasks [post]
 func (th *TaskHandler) CreateTask(c *gin.Context) {
 	var task models.Task
 	if err := c.BindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !(task.Status == models.COMPLETED || task.Status == models.INCOMPLETED) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("incorrect value of parameter 'status'")})
 		return
 	}
 
@@ -86,19 +83,19 @@ func (th *TaskHandler) CreateTask(c *gin.Context) {
 	c.JSON(http.StatusCreated, task)
 }
 
-// @BasePath /
+//	@BasePath	/
 
-// @Summary Update task
+// @Summary	Update task
 // @Schemes
-// @Description Update a task by ID
-// @Tags Task
-// @Accept json
-// @Produce json
-// @param id path int true "id"
-// @param name body string false "name"
-// @param status body int false "status"
-// @Success 200 {string} UpdateTask
-// @Router /tasks/{id} [put]
+// @Description	Update a task by ID
+// @Tags			Task
+// @Accept			json
+// @Produce		json
+// @param			id		path		int		true	"id"
+// @param			name	body		string	false	"name"
+// @param			status	body		int		false	"status"
+// @Success		200		{string}	UpdateTask
+// @Router			/tasks/{id} [put]
 func (th *TaskHandler) UpdateTask(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -138,17 +135,17 @@ func (th *TaskHandler) UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, existingTask)
 }
 
-// @BasePath /
+//	@BasePath	/
 
-// @Summary Delete task
+// @Summary	Delete task
 // @Schemes
-// @Description Delete a task by ID
-// @Tags Task
-// @Accept json
-// @Produce json
-// @param id path int true "id"
-// @Success 204 {string} DeleteTask
-// @Router /tasks/{id} [delete]
+// @Description	Delete a task by ID
+// @Tags			Task
+// @Accept			json
+// @Produce		json
+// @param			id	path		int	true	"id"
+// @Success		204	{string}	DeleteTask
+// @Router			/tasks/{id} [delete]
 func (th *TaskHandler) DeleteTask(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
